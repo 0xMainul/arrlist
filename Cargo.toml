@@ -1,0 +1,15 @@
+[package]
+name = "arrlist"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.93"
+description = "A generic, heap-allocated dynamic array"
+license = "MIT"
+repository = "https://github.com/0xMainul/arrlist"
+readme = "README.md"
+
+[lib]
+name = "arrlist"
+
+[dependencies]
+thiserror-no-std = "2.0.2"
