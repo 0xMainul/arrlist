@@ -33,6 +33,7 @@
 //! assert_eq!(list.capacity(), 8);
 //! assert_eq!(list.len(), 8);
 //! ```
+#![allow(clippy::tabs_in_doc_comments)]
 #![no_std]
 
 pub mod arrlist;
