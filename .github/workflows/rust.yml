@@ -1,0 +1,36 @@
+name: Rust CI
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Rust crate - ${{ matrix.toolchain }}
+    runs-on: ubuntu-latest
+    # Allowed nightly to fail without red-marking the whole PR
+    continue-on-error: ${{ matrix.toolchain == 'nightly' }}
+    strategy:
+      fail-fast: false # If one job fails don't cancel other 
+      matrix:
+        toolchain: [stable, beta, nightly]
+  
+    steps:
+      - uses: actions/checkout@v4
+  
+      - name: Setup Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: clippy, rustfmt
+          # cache: true
+  
+      - name: Build
+        run: cargo build --verbose
+  
+      - name: Run tests
+        run: cargo test --verbose
+      
+      - name: Run Clippy
+        run: cargo clippy -- -D warnings
