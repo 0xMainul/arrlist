@@ -1,17 +1,17 @@
-//! Core [`ArrayList<T>`](ArrayList) data structure.
+//! Core [`ArrayList<T>`] data structure.
 //!
-//! This module provides the main `ArrayList<T>` type along with its three iterator
+//! This module provides the main [`ArrayList<T>`] type along with its three iterator
 //! types — [`IntoIter`], [`Iter`], and [`IterMut`] — and all associated method
 //! implementations.
 //!
 //! # Memory Model
 //!
-//! `ArrayList<T>` stores elements in a heap-allocated `Box<[MaybeUninit<T>]>`. Only
+//! [`ArrayList<T>`] stores elements in a heap-allocated `Box<[MaybeUninit<T>]>`. Only
 //! the first `len` slots are initialised at any given time; slots in the range
-//! `[len, capacity)` are logically uninitialised and are never read as `T`. This
+//! `[len, capacity]` are logically uninitialised and are never read as `T`. This
 //! means:
 //!
-//! - `T` is **never required to implement `Default`**.
+//! - `T` is **never required to implement [`Default`]**.
 //! - Drop glue is only run on the initialised prefix — uninitialised slots are
 //!   skipped in both [`Drop`] and [`clear`](ArrayList::clear).
 //! - All `unsafe` code in this module relies on the invariant that `self.len`
