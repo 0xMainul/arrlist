@@ -20,7 +20,7 @@
 //! # Growth Strategy
 //!
 //! When [`push`](ArrayList::push) or [`insert`](ArrayList::insert) would exceed the
-//! current capacity, the list calls the private `grow` method,
+//! current capacity, the list calls the [`grow`](ArrayList::grow) method,
 //! which doubles the capacity (starting from 4 for a fresh list). This gives
 //! **amortised O(1)** cost per element appended.
 //!
@@ -54,21 +54,21 @@ use core::{
 
 /// A heap-allocated, dynamically-sized list backed by a contiguous block of memory.
 ///
-/// `ArrayList<T>` stores elements in a boxed slice of [`MaybeUninit<T>`] slots, tracking
+/// [`ArrayList<T>`] stores elements in a boxed slice of [`MaybeUninit<T>`] slots, tracking
 /// how many are currently initialised via `len`. When the list is full, it grows by
-/// doubling its capacity (starting from 4), similar to `Vec<T>`.
+/// doubling its capacity (starting from 4), similar to [`Vec<T>`].
 ///
 /// This type is `no_std` compatible and requires only `alloc`.
 ///
 /// # Type Parameter
 ///
 /// - `T` — the element type. No bounds are required unless a specific method needs them
-///   (e.g., `Ord` for [`sort`](ArrayList::sort) or `Clone` for [`from_slice`](ArrayList::from_slice)).
+///   (e.g., [`Ord`] for [`sort`](ArrayList::sort) or [`Clone`] for [`from_slice`](ArrayList::from_slice)).
 ///
 /// # Memory Layout
 ///
 /// Elements are stored contiguously in memory. Only the first `len` slots are
-/// initialised; slots in `[len, capacity)` are logically uninitialised and must not
+/// initialised; slots in `[len, capacity]` are logically uninitialised and must not
 /// be read.
 ///
 /// # Examples
@@ -98,7 +98,7 @@ pub struct ArrayList<T>
 
 impl<T> ArrayList<T>
 {
-	/// Creates a new, empty `ArrayList` with no allocated storage.
+	/// Creates a new, empty [`ArrayList`] with no allocated storage.
 	///
 	/// No heap allocation occurs until the first element is pushed.
 	///
@@ -120,7 +120,7 @@ impl<T> ArrayList<T>
 		}
 	}
 
-	/// Creates a new, empty `ArrayList` pre-allocated to hold at least `capacity` elements.
+	/// Creates a new, empty [`ArrayList`] pre-allocated to hold at least `capacity` elements.
 	///
 	/// If `capacity` is 0, this is equivalent to [`new`](ArrayList::new).
 	///
@@ -395,7 +395,7 @@ impl<T> ArrayList<T>
 	/// Inserts `val` at position `idx`, shifting all elements at and after `idx` one
 	/// position to the right.
 	///
-	/// `idx` may equal `self.len()` to append at the back (equivalent to [`push`](ArrayList::push)).
+	/// `idx` may equal [`self.len()`](ArrayList::len) to append at the back (equivalent to [`push`](ArrayList::push)).
 	///
 	/// Returns [`ListError::EmptyList`] if the list is empty and `idx > 0`, or
 	/// [`ListError::OutOfBounds`] if `idx > len`.
@@ -522,7 +522,7 @@ impl<T> ArrayList<T>
 	///
 	/// Returns [`ListError::CapacityOverflow`] if doubling the current capacity
 	/// would overflow `usize`.
-	fn grow(&mut self) -> Result<(), ListError>
+	pub fn grow(&mut self) -> Result<(), ListError>
 	{
 		let new_capacity = if self.capacity == 0
 		{
@@ -581,9 +581,9 @@ impl<T> ArrayList<T>
 
 impl<T> ArrayList<T>
 {
-	/// Creates an `ArrayList` from an existing `Vec<T>` without cloning.
+	/// Creates an [`ArrayList`] from an existing [`Vec<T>`] without cloning.
 	///
-	/// The underlying buffer of the `Vec` is reused directly. Ownership is transferred
+	/// The underlying buffer of the [`Vec`] is reused directly. Ownership is transferred
 	/// so no allocation occurs.
 	///
 	/// # Examples
@@ -621,7 +621,7 @@ impl<T> ArrayList<T>
 		}
 	}
 
-	/// Creates an `ArrayList` from a fixed-size array, consuming it.
+	/// Creates an [`ArrayList`] from a fixed-size array, consuming it.
 	///
 	/// Elements are moved into the list one by one. No cloning occurs.
 	///
@@ -649,9 +649,9 @@ impl<T> ArrayList<T>
 		list
 	}
 
-	/// Creates an `ArrayList` by cloning each element from a slice.
+	/// Creates an [`ArrayList`] by cloning each element from a slice.
 	///
-	/// Requires `T: Clone`.
+	/// Requires `T`: [`Clone`].
 	///
 	/// # Examples
 	///
@@ -726,12 +726,12 @@ impl<T> ArrayList<T>
 
 	/// Sorts the list in ascending order using bubble sort.
 	///
-	/// Requires `T: Ord`. Does nothing if the list has 0 or 1 element.
+	/// Requires `T`: [`Ord`]. Does nothing if the list has 0 or 1 element.
 	///
 	/// # Complexity
 	///
 	/// O(n²) in the worst and average case. Suitable for small lists or nearly-sorted
-	/// data; consider extracting to a `Vec` and using `slice::sort` for larger inputs.
+	/// data; consider extracting to a [`Vec`] and using [`slice::sort_unstable`] for larger inputs.
 	///
 	/// # Examples
 	///
@@ -777,7 +777,7 @@ impl<T> ArrayList<T>
 
 	/// Returns the index of the first element equal to `target`, or `None`.
 	///
-	/// Requires `T: PartialEq`. Scans from index 0 to `len - 1`.
+	/// Requires `T`: [`PartialEq`]. Scans from index 0 to `len - 1`.
 	///
 	/// # Complexity
 	///
@@ -810,7 +810,7 @@ impl<T> ArrayList<T>
 
 	/// Returns the index of an element equal to `target` using binary search, or `None`.
 	///
-	/// Requires `T: Ord`. **The list must be sorted in ascending order** before calling
+	/// Requires `T`: [`Ord`]. **The list must be sorted in ascending order** before calling
 	/// this method; results are unspecified on unsorted data.
 	///
 	/// # Complexity
@@ -872,7 +872,7 @@ impl<T> ArrayList<T>
 
 impl<T> From<Vec<T>> for ArrayList<T>
 {
-	/// Converts a `Vec<T>` into an `ArrayList<T>` without copying.
+	/// Converts a [`Vec<T>`] into an [`ArrayList<T>`] without copying.
 	fn from(vec: Vec<T>) -> Self
 	{
 		Self::from_vec(vec)
@@ -881,7 +881,7 @@ impl<T> From<Vec<T>> for ArrayList<T>
 
 impl<T, const N: usize> From<[T; N]> for ArrayList<T>
 {
-	/// Converts a fixed-size array `[T; N]` into an `ArrayList<T>`, consuming it.
+	/// Converts a fixed-size array `[T; N]` into an [`ArrayList<T>`], consuming it.
 	fn from(arr: [T; N]) -> Self
 	{
 		Self::from_array(arr)
@@ -890,10 +890,10 @@ impl<T, const N: usize> From<[T; N]> for ArrayList<T>
 
 impl<T> Default for ArrayList<T>
 {
-	/// Creates an empty `ArrayList` with no heap allocation.
+	/// Creates an empty [`ArrayList`] with no heap allocation.
 	///
 	/// This is identical to calling [`ArrayList::new()`] and is provided so that
-	/// `ArrayList<T>` can be used anywhere a `Default` bound is required — for
+	/// [`ArrayList<T>`] can be used anywhere a [`Default`] bound is required — for
 	/// example, as a field inside a `#[derive(Default)]` struct, or with
 	/// [`Option::unwrap_or_default`].
 	///
@@ -907,7 +907,7 @@ impl<T> Default for ArrayList<T>
 	/// assert_eq!(list.capacity(), 0);
 	/// ```
 	///
-	/// Using `Default` inside another struct:
+	/// Using [`Default`] inside another struct:
 	///
 	/// ```rust
 	/// use arrlist::arrlist::ArrayList;
@@ -929,7 +929,7 @@ impl<T> Default for ArrayList<T>
 
 impl<T: Debug> Display for ArrayList<T>
 {
-	/// Formats the list as `[elem0, elem1, …]` using each element's `Debug` representation.
+	/// Formats the list as `[elem0, elem1, …]` using each element's [`Debug`] representation.
 	///
 	/// # Examples
 	///
@@ -961,7 +961,7 @@ impl<T: Debug> Display for ArrayList<T>
 
 impl<T> Drop for ArrayList<T>
 {
-	/// Drops all initialised elements when the `ArrayList` is destroyed.
+	/// Drops all initialised elements when the [`ArrayList`] is destroyed.
 	///
 	/// Slots beyond `len` are uninitialised and are intentionally skipped.
 	fn drop(&mut self)
