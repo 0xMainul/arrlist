@@ -2,7 +2,7 @@
 //!
 //! A generic, heap-allocated dynamic array for `no_std` environments.
 //!
-//! `ArrayList<T>` is a contiguous, growable collection backed by a boxed slice of
+//! [`ArrayList<T>`](crate::arrlist::ArrayList) is a contiguous, growable collection backed by a boxed slice of
 //! [`MaybeUninit<T>`](core::mem::MaybeUninit). It provides O(1) amortized push/pop at the
 //! back, O(n) insertion and removal at arbitrary positions, and a full set of
 //! iterator types — all without requiring the standard library.
@@ -10,7 +10,7 @@
 //! ## Features
 //!
 //! - `no_std` compatible (requires `alloc`)
-//! - Manual memory management via `MaybeUninit` — no unnecessary `Default` bounds
+//! - Manual memory management via [`MaybeUninit`](core::mem::MaybeUninit) — no unnecessary [`Default`] bounds
 //! - Amortized O(1) [`push`](arrlist::ArrayList::push) and [`pop`](arrlist::ArrayList::pop)
 //! - O(n) [`insert`](arrlist::ArrayList::insert), [`remove`](arrlist::ArrayList::remove), and [`pop_front`](arrlist::ArrayList::pop_front)
 //! - Conversion from `Vec<T>`, `[T; N]`, and `&[T]`
