@@ -1,4 +1,4 @@
-//! Error types for fallible [`ArrayList`](crate::arrlist::ArrayList) operations.
+//! Error types for fallible [`ArrayList`](crate::ArrayList) operations.
 //!
 //! The single public type in this module is [`ListError`], returned by methods that
 //! accept an index or mutate the list's capacity.
@@ -15,7 +15,7 @@
 //!
 //! ```rust
 //! use arrlist::{
-//! 	arrlist::ArrayList,
+//! 	ArrayList,
 //! 	error::ListError,
 //! };
 //!
@@ -39,7 +39,7 @@
 
 use thiserror_no_std::Error;
 
-/// Errors that can occur during [`ArrayList`](crate::arrlist::ArrayList) operations.
+/// Errors that can occur during [`ArrayList`](crate::ArrayList) operations.
 ///
 /// This enum covers three failure modes: accessing an out-of-range index, operating on
 /// an empty list, and exhausting the addressable capacity of the allocator.
@@ -55,7 +55,7 @@ pub enum ListError
 	///
 	/// ```
 	/// use arrlist::{
-	/// 	arrlist::ArrayList,
+	/// 	ArrayList,
 	/// 	error::ListError,
 	/// };
 	///
@@ -80,15 +80,15 @@ pub enum ListError
 
 	/// An operation was attempted on an empty list.
 	///
-	/// Returned when an index-based operation (e.g., [`set`](crate::arrlist::ArrayList::set),
-	/// [`insert`](crate::arrlist::ArrayList::insert), [`remove`](crate::arrlist::ArrayList::remove))
+	/// Returned when an index-based operation (e.g., [`set`](crate::ArrayList::set),
+	/// [`insert`](crate::ArrayList::insert), [`remove`](crate::ArrayList::remove))
 	/// is called but the list contains no elements.
 	///
 	/// # Example
 	///
 	/// ```
 	/// use arrlist::{
-	/// 	arrlist::ArrayList,
+	/// 	ArrayList,
 	/// 	error::ListError,
 	/// };
 	///
@@ -106,8 +106,8 @@ pub enum ListError
 	/// elements, so it is practically unreachable in normal use. On 32-bit targets
 	/// the limit is ~2 billion elements.
 	///
-	/// Returned by [`push`](crate::arrlist::ArrayList::push) and
-	/// [`insert`](crate::arrlist::ArrayList::insert) when a reallocation is
+	/// Returned by [`push`](crate::ArrayList::push) and
+	/// [`insert`](crate::ArrayList::insert) when a reallocation is
 	/// required but the new capacity cannot be represented as a `usize`.
 	///
 	/// # Example

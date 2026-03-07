@@ -1,7 +1,7 @@
 //! Tests for the utility algorithms: `sort`, `reverse`, `linear_search`, and
 //! `binary_search`.
 
-use arrlist::arrlist::ArrayList;
+use arrlist::ArrayList;
 
 #[test]
 fn sort_ascending()

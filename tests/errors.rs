@@ -4,7 +4,7 @@ extern crate alloc;
 use alloc::string::ToString;
 
 use arrlist::{
-	arrlist::ArrayList,
+	ArrayList,
 	error::ListError,
 };
 

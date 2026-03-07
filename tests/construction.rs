@@ -3,10 +3,7 @@
 extern crate alloc;
 use alloc::vec;
 
-use arrlist::{
-	ArrayList,
-	arrlist,
-};
+use arrlist::ArrayList;
 
 #[test]
 fn new_is_empty()

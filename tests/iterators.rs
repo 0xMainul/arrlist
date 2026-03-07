@@ -3,7 +3,7 @@
 extern crate alloc;
 use alloc::vec::Vec;
 
-use arrlist::arrlist::ArrayList;
+use arrlist::ArrayList;
 
 #[test]
 fn into_iter_yields_all_elements_in_order()

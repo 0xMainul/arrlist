@@ -1,7 +1,7 @@
 //! Tests for all element-level mutation and access methods.
 
 use arrlist::{
-	arrlist::ArrayList,
+	ArrayList,
 	error::ListError,
 };
 
