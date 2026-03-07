@@ -36,10 +36,9 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-arrlist = "0.2.4"
+arrlist = "0.2.5"
 ```
 
-Minimum supported Rust version: **1.93**
 
 ---
 
