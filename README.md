@@ -36,7 +36,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-arrlist = "0.2.5"
+arrlist = "0.2.6"
 ```
 
 
