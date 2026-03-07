@@ -40,21 +40,14 @@
 pub mod error;
 
 extern crate alloc;
-use alloc::{
-	boxed::Box,
-	vec::Vec,
-};
+use alloc::{boxed::Box, vec::Vec};
 
 use crate::error::ListError;
 
 use core::{
-	fmt::{
-		Debug,
-		Display,
-	},
+	fmt::{Debug, Display},
 	mem::MaybeUninit,
-	ptr,
-	slice,
+	ptr, slice,
 };
 
 /// Core [`ArrayList<T>`] data structure.
@@ -113,9 +106,8 @@ use core::{
 /// | [`IntoIter<T>`] | `list.into_iter()` | `T` (owned) |
 /// | [`Iter<'a, T>`] | `list.iter()` / `&list` | `&'a T` |
 /// | [`IterMut<'a, T>`] | `list.iter_mut()` / `&mut list` | `&'a mut T` |
-
-pub struct ArrayList<T>
-{
+///
+pub struct ArrayList<T> {
 	/// The backing storage. Slots `0..len` are initialised; the rest are not.
 	data: Box<[MaybeUninit<T>]>,
 	/// Number of currently initialised (live) elements.
@@ -124,8 +116,7 @@ pub struct ArrayList<T>
 	capacity: usize,
 }
 
-impl<T> ArrayList<T>
-{
+impl<T> ArrayList<T> {
 	/// Creates a new, empty [`ArrayList`] with no allocated storage.
 	///
 	/// No heap allocation occurs until the first element is pushed.
@@ -139,8 +130,7 @@ impl<T> ArrayList<T>
 	/// assert!(list.is_empty());
 	/// assert_eq!(list.capacity(), 0);
 	/// ```
-	pub fn new() -> Self
-	{
+	pub fn new() -> Self {
 		Self {
 			data: Box::new([]),
 			len: 0,
@@ -161,10 +151,8 @@ impl<T> ArrayList<T>
 	/// assert_eq!(list.capacity(), 16);
 	/// assert_eq!(list.len(), 0);
 	/// ```
-	pub fn with_capacity(capacity: usize) -> Self
-	{
-		if capacity == 0
-		{
+	pub fn with_capacity(capacity: usize) -> Self {
+		if capacity == 0 {
 			return Self::new();
 		}
 
@@ -188,8 +176,7 @@ impl<T> ArrayList<T>
 	/// let list = ArrayList::from_array([10, 20, 30]);
 	/// assert_eq!(list.len(), 3);
 	/// ```
-	pub fn len(&self) -> usize
-	{
+	pub fn len(&self) -> usize {
 		self.len
 	}
 
@@ -203,8 +190,7 @@ impl<T> ArrayList<T>
 	/// let list: ArrayList<i32> = ArrayList::with_capacity(8);
 	/// assert_eq!(list.capacity(), 8);
 	/// ```
-	pub fn capacity(&self) -> usize
-	{
+	pub fn capacity(&self) -> usize {
 		self.capacity
 	}
 
@@ -218,8 +204,7 @@ impl<T> ArrayList<T>
 	/// let list: ArrayList<i32> = ArrayList::new();
 	/// assert!(list.is_empty());
 	/// ```
-	pub fn is_empty(&self) -> bool
-	{
+	pub fn is_empty(&self) -> bool {
 		self.len == 0
 	}
 
@@ -247,11 +232,9 @@ impl<T> ArrayList<T>
 	/// list.push(2).unwrap();
 	/// assert_eq!(list.len(), 2);
 	/// ```
-	pub fn push(&mut self, val: T) -> Result<(), ListError>
-	{
+	pub fn push(&mut self, val: T) -> Result<(), ListError> {
 		// Grow the backing storage if there is no room for the new element.
-		if self.capacity == self.len
-		{
+		if self.capacity == self.len {
 			self.grow()?;
 		}
 
@@ -275,10 +258,8 @@ impl<T> ArrayList<T>
 	/// assert_eq!(list.pop(), Some(3));
 	/// assert_eq!(list.len(), 2);
 	/// ```
-	pub fn pop(&mut self) -> Option<T>
-	{
-		if self.len == 0
-		{
+	pub fn pop(&mut self) -> Option<T> {
+		if self.len == 0 {
 			return None;
 		}
 
@@ -305,10 +286,8 @@ impl<T> ArrayList<T>
 	/// assert_eq!(list.pop_front(), Some(10));
 	/// assert_eq!(list.get(0), Some(&20));
 	/// ```
-	pub fn pop_front(&mut self) -> Option<T>
-	{
-		if self.len == 0
-		{
+	pub fn pop_front(&mut self) -> Option<T> {
+		if self.len == 0 {
 			return None;
 		}
 
@@ -342,10 +321,8 @@ impl<T> ArrayList<T>
 	/// assert_eq!(list.get(1), Some(&'b'));
 	/// assert_eq!(list.get(99), None);
 	/// ```
-	pub fn get(&self, idx: usize) -> Option<&T>
-	{
-		if idx >= self.len
-		{
+	pub fn get(&self, idx: usize) -> Option<&T> {
+		if idx >= self.len {
 			return None;
 		}
 
@@ -367,10 +344,8 @@ impl<T> ArrayList<T>
 	/// }
 	/// assert_eq!(list.get(0), Some(&100));
 	/// ```
-	pub fn get_mut(&mut self, idx: usize) -> Option<&mut T>
-	{
-		if idx >= self.len
-		{
+	pub fn get_mut(&mut self, idx: usize) -> Option<&mut T> {
+		if idx >= self.len {
 			return None;
 		}
 
@@ -392,19 +367,14 @@ impl<T> ArrayList<T>
 	/// list.set(1, 99).unwrap();
 	/// assert_eq!(list.get(1), Some(&99));
 	/// ```
-	pub fn set(&mut self, idx: usize, val: T) -> Result<(), ListError>
-	{
-		if idx >= self.len
-		{
+	pub fn set(&mut self, idx: usize, val: T) -> Result<(), ListError> {
+		if idx >= self.len {
 			// Distinguish between "list is empty" and "index is just too large".
-			match self.is_empty()
-			{
-				true =>
-				{
+			match self.is_empty() {
+				true => {
 					return Err(ListError::EmptyList);
 				},
-				false =>
-				{
+				false => {
 					return Err(ListError::OutOfBounds {
 						idx,
 						limits: (0, self.len - 1),
@@ -442,18 +412,13 @@ impl<T> ArrayList<T>
 	/// assert_eq!(list.get(1), Some(&2));
 	/// assert_eq!(list.get(2), Some(&3));
 	/// ```
-	pub fn insert(&mut self, idx: usize, val: T) -> Result<(), ListError>
-	{
-		if idx > self.len
-		{
-			match self.is_empty()
-			{
-				true =>
-				{
+	pub fn insert(&mut self, idx: usize, val: T) -> Result<(), ListError> {
+		if idx > self.len {
+			match self.is_empty() {
+				true => {
 					return Err(ListError::EmptyList);
 				},
-				false =>
-				{
+				false => {
 					return Err(ListError::OutOfBounds {
 						idx,
 						limits: (0, self.len - 1),
@@ -463,8 +428,7 @@ impl<T> ArrayList<T>
 		}
 
 		// Grow before shifting to ensure the extra slot exists.
-		if self.len == self.capacity
-		{
+		if self.len == self.capacity {
 			self.grow()?;
 		}
 
@@ -502,18 +466,13 @@ impl<T> ArrayList<T>
 	/// assert_eq!(list.len(), 2);
 	/// assert_eq!(list.get(1), Some(&30));
 	/// ```
-	pub fn remove(&mut self, idx: usize) -> Result<T, ListError>
-	{
-		if idx >= self.len
-		{
-			match self.is_empty()
-			{
-				true =>
-				{
+	pub fn remove(&mut self, idx: usize) -> Result<T, ListError> {
+		if idx >= self.len {
+			match self.is_empty() {
+				true => {
 					return Err(ListError::EmptyList);
 				},
-				false =>
-				{
+				false => {
 					return Err(ListError::OutOfBounds {
 						idx,
 						limits: (0, self.len - 1),
@@ -550,15 +509,11 @@ impl<T> ArrayList<T>
 	///
 	/// Returns [`ListError::CapacityOverflow`] if doubling the current capacity
 	/// would overflow `usize`.
-	pub fn grow(&mut self) -> Result<(), ListError>
-	{
-		let new_capacity = if self.capacity == 0
-		{
+	pub fn grow(&mut self) -> Result<(), ListError> {
+		let new_capacity = if self.capacity == 0 {
 			// Start small to avoid wasting memory on tiny lists.
 			4
-		}
-		else
-		{
+		} else {
 			// Double the capacity to achieve amortised O(1) push.
 			// Return CapacityOverflow instead of panicking so callers can handle it.
 			self.capacity
@@ -596,19 +551,16 @@ impl<T> ArrayList<T>
 	/// list.clear();
 	/// assert!(list.is_empty());
 	/// ```
-	pub fn clear(&mut self)
-	{
+	pub fn clear(&mut self) {
 		// Drop every initialised element in order.
-		for idx in 0..self.len
-		{
+		for idx in 0..self.len {
 			unsafe { self.data[idx].assume_init_drop() };
 		}
 		self.len = 0;
 	}
 }
 
-impl<T> ArrayList<T>
-{
+impl<T> ArrayList<T> {
 	/// Creates an [`ArrayList`] from an existing [`Vec<T>`] without cloning.
 	///
 	/// The underlying buffer of the [`Vec`] is reused directly. Ownership is transferred
@@ -623,8 +575,7 @@ impl<T> ArrayList<T>
 	/// let list = ArrayList::from_vec(v);
 	/// assert_eq!(list.len(), 3);
 	/// ```
-	pub fn from_vec(vec: Vec<T>) -> Self
-	{
+	pub fn from_vec(vec: Vec<T>) -> Self {
 		let len = vec.len();
 		let capacity = vec.capacity();
 
@@ -662,12 +613,10 @@ impl<T> ArrayList<T>
 	/// assert_eq!(list.len(), 3);
 	/// assert_eq!(list.get(2), Some(&30));
 	/// ```
-	pub fn from_array<const N: usize>(arr: [T; N]) -> Self
-	{
+	pub fn from_array<const N: usize>(arr: [T; N]) -> Self {
 		let mut list = Self::with_capacity(N);
 
-		for item in arr
-		{
+		for item in arr {
 			// SAFETY: capacity is pre-allocated to exactly N, so grow is never
 			// triggered and push cannot return Err.
 			list.push(item)
@@ -696,8 +645,7 @@ impl<T> ArrayList<T>
 	{
 		let mut list = Self::with_capacity(slice.len());
 
-		for item in slice
-		{
+		for item in slice {
 			// SAFETY: capacity is pre-allocated to slice.len(), so grow is never
 			// triggered and push cannot return Err.
 			list.push(item.clone())
@@ -708,8 +656,7 @@ impl<T> ArrayList<T>
 	}
 }
 
-impl<T> ArrayList<T>
-{
+impl<T> ArrayList<T> {
 	/// Reverses the order of elements in place.
 	///
 	/// Uses a two-pointer swap approach. Does nothing if the list has 0 or 1 element.
@@ -728,10 +675,8 @@ impl<T> ArrayList<T>
 	/// assert_eq!(list.get(0), Some(&4));
 	/// assert_eq!(list.get(3), Some(&1));
 	/// ```
-	pub fn reverse(&mut self)
-	{
-		if self.len <= 1
-		{
+	pub fn reverse(&mut self) {
+		if self.len <= 1 {
 			return;
 		}
 
@@ -739,8 +684,7 @@ impl<T> ArrayList<T>
 		let mut right = self.len - 1;
 
 		// Walk inward from both ends, swapping pairs.
-		while left < right
-		{
+		while left < right {
 			unsafe {
 				ptr::swap(
 					self.data.as_mut_ptr().add(left),
@@ -775,17 +719,13 @@ impl<T> ArrayList<T>
 	where
 		T: Ord,
 	{
-		match self.len <= 1
-		{
+		match self.len <= 1 {
 			true => (),
-			false =>
-			{
+			false => {
 				// Outer pass: each iteration guarantees the largest unsorted element
 				// has bubbled to its final position at the end of the unsorted region.
-				for idx in 0..self.len
-				{
-					for jdx in 0..self.len - idx - 1
-					{
+				for idx in 0..self.len {
+					for jdx in 0..self.len - idx - 1 {
 						unsafe {
 							if self.data[jdx].assume_init_ref()
 								> self.data[jdx + 1].assume_init_ref()
@@ -824,11 +764,9 @@ impl<T> ArrayList<T>
 	where
 		T: PartialEq,
 	{
-		for idx in 0..self.len
-		{
+		for idx in 0..self.len {
 			unsafe {
-				if target == self.data[idx].assume_init_ref()
-				{
+				if target == self.data[idx].assume_init_ref() {
 					return Some(idx);
 				}
 			}
@@ -859,35 +797,27 @@ impl<T> ArrayList<T>
 		T: Ord,
 	{
 		// Guard against empty list: `self.len - 1` would underflow.
-		if self.is_empty()
-		{
+		if self.is_empty() {
 			return None;
 		}
 
 		let mut low = 0usize;
 		let mut high = self.len - 1;
 
-		while low <= high
-		{
+		while low <= high {
 			// Use `low + (high - low) / 2` to avoid overflow.
 			let mid = low + (high - low) / 2;
 
 			unsafe {
-				if self.data[mid].assume_init_ref() == target
-				{
+				if self.data[mid].assume_init_ref() == target {
 					return Some(mid);
-				}
-				else if self.data[mid].assume_init_ref() < target
-				{
+				} else if self.data[mid].assume_init_ref() < target {
 					low = mid + 1;
-				}
-				else
-				{
+				} else {
 					// `mid` is 0 when the target is smaller than every element.
 					// Subtracting 1 from a `usize` of 0 would panic in debug or
 					// wrap in release, so we use `checked_sub` and bail out.
-					match mid.checked_sub(1)
-					{
+					match mid.checked_sub(1) {
 						Some(val) => high = val,
 						None => return None,
 					}
@@ -898,26 +828,21 @@ impl<T> ArrayList<T>
 	}
 }
 
-impl<T> From<Vec<T>> for ArrayList<T>
-{
+impl<T> From<Vec<T>> for ArrayList<T> {
 	/// Converts a [`Vec<T>`] into an [`ArrayList<T>`] without copying.
-	fn from(vec: Vec<T>) -> Self
-	{
+	fn from(vec: Vec<T>) -> Self {
 		Self::from_vec(vec)
 	}
 }
 
-impl<T, const N: usize> From<[T; N]> for ArrayList<T>
-{
+impl<T, const N: usize> From<[T; N]> for ArrayList<T> {
 	/// Converts a fixed-size array `[T; N]` into an [`ArrayList<T>`], consuming it.
-	fn from(arr: [T; N]) -> Self
-	{
+	fn from(arr: [T; N]) -> Self {
 		Self::from_array(arr)
 	}
 }
 
-impl<T> Default for ArrayList<T>
-{
+impl<T> Default for ArrayList<T> {
 	/// Creates an empty [`ArrayList`] with no heap allocation.
 	///
 	/// This is identical to calling [`ArrayList::new()`] and is provided so that
@@ -949,14 +874,12 @@ impl<T> Default for ArrayList<T>
 	/// let state = State::default();
 	/// assert!(state.items.is_empty());
 	/// ```
-	fn default() -> Self
-	{
+	fn default() -> Self {
 		Self::new()
 	}
 }
 
-impl<T: Debug> Display for ArrayList<T>
-{
+impl<T: Debug> Display for ArrayList<T> {
 	/// Formats the list as `[elem0, elem1, …]` using each element's [`Debug`] representation.
 	///
 	/// # Examples
@@ -967,14 +890,11 @@ impl<T: Debug> Display for ArrayList<T>
 	/// let list = ArrayList::from_array([1, 2, 3]);
 	/// assert_eq!(format!("{list}"), "[1, 2, 3]");
 	/// ```
-	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-	{
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		write!(f, "[");
 
-		for idx in 0..self.len
-		{
-			if idx > 0
-			{
+		for idx in 0..self.len {
+			if idx > 0 {
 				write!(f, ", ");
 			}
 
@@ -987,15 +907,12 @@ impl<T: Debug> Display for ArrayList<T>
 	}
 }
 
-impl<T> Drop for ArrayList<T>
-{
+impl<T> Drop for ArrayList<T> {
 	/// Drops all initialised elements when the [`ArrayList`] is destroyed.
 	///
 	/// Slots beyond `len` are uninitialised and are intentionally skipped.
-	fn drop(&mut self)
-	{
-		for idx in 0..self.len
-		{
+	fn drop(&mut self) {
+		for idx in 0..self.len {
 			unsafe {
 				self.data[idx].assume_init_drop();
 			}
@@ -1007,28 +924,23 @@ impl<T> Drop for ArrayList<T>
 ///
 /// Elements are yielded front-to-back by repeatedly calling [`pop_front`](ArrayList::pop_front).
 /// Created by [`ArrayList::into_iter`] via the [`IntoIterator`] implementation.
-pub struct IntoIter<T>
-{
+pub struct IntoIter<T> {
 	arr: ArrayList<T>,
 }
 
-impl<T> Iterator for IntoIter<T>
-{
+impl<T> Iterator for IntoIter<T> {
 	type Item = T;
 
-	fn next(&mut self) -> Option<Self::Item>
-	{
+	fn next(&mut self) -> Option<Self::Item> {
 		self.arr.pop_front()
 	}
 }
 
-impl<T> IntoIterator for ArrayList<T>
-{
+impl<T> IntoIterator for ArrayList<T> {
 	type IntoIter = IntoIter<T>;
 	type Item = T;
 
-	fn into_iter(self) -> Self::IntoIter
-	{
+	fn into_iter(self) -> Self::IntoIter {
 		IntoIter { arr: self }
 	}
 }
@@ -1036,15 +948,13 @@ impl<T> IntoIterator for ArrayList<T>
 /// A borrowing iterator over an [`ArrayList<T>`] that yields shared references.
 ///
 /// Created by [`ArrayList::iter`] or by iterating over `&ArrayList<T>`.
-pub struct Iter<'a, T>
-{
+pub struct Iter<'a, T> {
 	arr: &'a ArrayList<T>,
 	/// Current position; incremented on each call to [`next`](Iterator::next).
 	index: usize,
 }
 
-impl<T> ArrayList<T>
-{
+impl<T> ArrayList<T> {
 	/// Returns an iterator over shared references to the elements of the list.
 	///
 	/// # Examples
@@ -1056,8 +966,7 @@ impl<T> ArrayList<T>
 	/// let collected: Vec<_> = list.iter().copied().collect();
 	/// assert_eq!(collected, [1, 2, 3]);
 	/// ```
-	pub fn iter(&self) -> Iter<'_, T>
-	{
+	pub fn iter(&self) -> Iter<'_, T> {
 		Iter {
 			arr: self,
 			index: 0,
@@ -1065,18 +974,13 @@ impl<T> ArrayList<T>
 	}
 }
 
-impl<'a, T> Iterator for Iter<'a, T>
-{
+impl<'a, T> Iterator for Iter<'a, T> {
 	type Item = &'a T;
 
-	fn next(&mut self) -> Option<Self::Item>
-	{
-		if self.index >= self.arr.len()
-		{
+	fn next(&mut self) -> Option<Self::Item> {
+		if self.index >= self.arr.len() {
 			None
-		}
-		else
-		{
+		} else {
 			let item = unsafe {
 				let ptr = self.arr.data.as_ptr().add(self.index);
 				(*ptr).assume_init_ref()
@@ -1090,15 +994,13 @@ impl<'a, T> Iterator for Iter<'a, T>
 /// A mutably-borrowing iterator over an [`ArrayList<T>`] that yields exclusive references.
 ///
 /// Created by [`ArrayList::iter_mut`] or by iterating over `&mut ArrayList<T>`.
-pub struct IterMut<'a, T>
-{
+pub struct IterMut<'a, T> {
 	arr: &'a mut ArrayList<T>,
 	/// Current position; incremented on each call to [`next`](Iterator::next).
 	index: usize,
 }
 
-impl<T> ArrayList<T>
-{
+impl<T> ArrayList<T> {
 	/// Returns an iterator over mutable references to the elements of the list.
 	///
 	/// # Examples
@@ -1114,8 +1016,7 @@ impl<T> ArrayList<T>
 	/// assert_eq!(list.get(0), Some(&2));
 	/// assert_eq!(list.get(2), Some(&6));
 	/// ```
-	pub fn iter_mut(&mut self) -> IterMut<'_, T>
-	{
+	pub fn iter_mut(&mut self) -> IterMut<'_, T> {
 		IterMut {
 			arr: self,
 			index: 0,
@@ -1123,18 +1024,13 @@ impl<T> ArrayList<T>
 	}
 }
 
-impl<'a, T> Iterator for IterMut<'a, T>
-{
+impl<'a, T> Iterator for IterMut<'a, T> {
 	type Item = &'a mut T;
 
-	fn next(&mut self) -> Option<Self::Item>
-	{
-		if self.index >= self.arr.len()
-		{
+	fn next(&mut self) -> Option<Self::Item> {
+		if self.index >= self.arr.len() {
 			None
-		}
-		else
-		{
+		} else {
 			let item = unsafe {
 				let ptr = self.arr.data.as_mut_ptr().add(self.index);
 				(*ptr).assume_init_mut()
@@ -1145,24 +1041,20 @@ impl<'a, T> Iterator for IterMut<'a, T>
 	}
 }
 
-impl<'a, T> IntoIterator for &'a ArrayList<T>
-{
+impl<'a, T> IntoIterator for &'a ArrayList<T> {
 	type Item = &'a T;
 	type IntoIter = Iter<'a, T>;
 
-	fn into_iter(self) -> Self::IntoIter
-	{
+	fn into_iter(self) -> Self::IntoIter {
 		self.iter()
 	}
 }
 
-impl<'a, T> IntoIterator for &'a mut ArrayList<T>
-{
+impl<'a, T> IntoIterator for &'a mut ArrayList<T> {
 	type Item = &'a mut T;
 	type IntoIter = IterMut<'a, T>;
 
-	fn into_iter(self) -> Self::IntoIter
-	{
+	fn into_iter(self) -> Self::IntoIter {
 		self.iter_mut()
 	}
 }
