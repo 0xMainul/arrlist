@@ -36,7 +36,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-arrlist = "0.2.5"
+arrlist = "0.2.7"
 ```
 
 
@@ -85,7 +85,7 @@ let repeated = arrlist![0_i32; 5];
 ## Constructors
 
 ```rust
-use arrlist::arrlist::ArrayList;
+use arrlist::ArrayList;
 
 // Start empty, allocate on first push
 let list: ArrayList<i32> = ArrayList::new();
@@ -108,7 +108,7 @@ let list = ArrayList::from_slice(&[7, 8, 9]);
 ## Core Operations
 
 ```rust
-use arrlist::arrlist::ArrayList;
+use arrlist::ArrayList;
 
 let mut list = ArrayList::from_array([10, 20, 30]);
 
@@ -146,7 +146,7 @@ list.clear();
 All three standard iterator patterns are supported:
 
 ```rust
-use arrlist::arrlist::ArrayList;
+use arrlist::ArrayList;
 
 let list = ArrayList::from_array([1, 2, 3]);
 
@@ -172,7 +172,7 @@ for val in list {
 ## Algorithms
 
 ```rust
-use arrlist::arrlist::ArrayList;
+use arrlist::ArrayList;
 
 let mut list = ArrayList::from_array([3, 1, 4, 1, 5, 9]);
 
@@ -189,7 +189,7 @@ let idx = list.linear_search(&4);
 let idx = list.binary_search(&5);
 ```
 
-> **Heads up on sort:** The built-in sort uses bubble sort, which is O(n²). It's perfectly reasonable for small lists. If you're dealing with thousands of elements, extract to a `Vec` and use `slice::sort` instead.
+> **Heads up on sort:** The built-in sort uses bubble sort, which is O(n²). It's perfectly reasonable for small lists. If you're dealing with thousands of elements, extract to a `Vec` and use `slice::sort_unstable` instead.
 
 ---
 
@@ -204,7 +204,7 @@ Fallible operations return `Result<_, ListError>`. There are three variants:
 | `ListError::CapacityOverflow` | Growing would overflow `usize` (practically unreachable on 64-bit) |
 
 ```rust
-use arrlist::{arrlist::ArrayList, error::ListError};
+use arrlist::{ArrayList, error::ListError};
 
 let mut list: ArrayList<i32> = ArrayList::new();
 
@@ -232,7 +232,7 @@ match list.set(5, 99) {
 `ArrayList<T>` implements `Display` when `T: Debug`, printing in the familiar `[a, b, c]` format:
 
 ```rust
-use arrlist::arrlist::ArrayList;
+use arrlist::ArrayList;
 
 let list = ArrayList::from_array([1, 2, 3]);
 println!("{list}"); // [1, 2, 3]
@@ -250,7 +250,7 @@ In your crate root, enable the `alloc` extern and make sure your target provides
 extern crate alloc;
 
 use alloc::vec;
-use arrlist::{arrlist, ArrayList};
+use arrlist::ArrayList;
 ```
 
 ---
